@@ -55,33 +55,6 @@ ProtectGui(ScreenGui);
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Global;
 ScreenGui.Parent = CoreGui;
 
--- Create toggle button outside the UI
-local ToggleButton = Instance.new('TextButton');
-ToggleButton.Size = UDim2.new(0, 80, 0, 30);
-ToggleButton.Position = UDim2.new(1, -90, 0, 10); -- Top right corner
-ToggleButton.BackgroundColor3 = Library.MainColor;
-ToggleButton.BorderColor3 = Library.OutlineColor;
-ToggleButton.Text = "Open";
-ToggleButton.TextColor3 = Library.FontColor;
-ToggleButton.Font = Library.Font;
-ToggleButton.TextSize = 14;
-ToggleButton.ZIndex = 1000;
-ToggleButton.Parent = ScreenGui;
-
--- Add border and styling
-local ToggleButtonStroke = Instance.new('UIStroke');
-ToggleButtonStroke.Color = Library.OutlineColor;
-ToggleButtonStroke.Thickness = 1;
-ToggleButtonStroke.Parent = ToggleButton;
-
-local ToggleButtonGradient = Instance.new('UIGradient');
-ToggleButtonGradient.Color = ColorSequence.new({
-    ColorSequenceKeypoint.new(0, Color3.new(1, 1, 1)),
-    ColorSequenceKeypoint.new(1, Color3.fromRGB(212, 212, 212))
-});
-ToggleButtonGradient.Rotation = 90;
-ToggleButtonGradient.Parent = ToggleButton;
-
 local Toggles = {};
 local Options = {};
 getgenv().Toggles = Toggles;
@@ -114,6 +87,33 @@ local Library = {
 	ScreenGui = ScreenGui;
 	Windows = {}; -- Store windows for toggle functionality
 };
+
+-- Create toggle button outside the UI
+local ToggleButton = Instance.new('TextButton');
+ToggleButton.Size = UDim2.new(0, 80, 0, 30);
+ToggleButton.Position = UDim2.new(1, -90, 0, 10); -- Top right corner
+ToggleButton.BackgroundColor3 = Library.MainColor;
+ToggleButton.BorderColor3 = Library.OutlineColor;
+ToggleButton.Text = "Open";
+ToggleButton.TextColor3 = Library.FontColor;
+ToggleButton.Font = Library.Font;
+ToggleButton.TextSize = 14;
+ToggleButton.ZIndex = 1000;
+ToggleButton.Parent = ScreenGui;
+
+-- Add border and styling
+local ToggleButtonStroke = Instance.new('UIStroke');
+ToggleButtonStroke.Color = Library.OutlineColor;
+ToggleButtonStroke.Thickness = 1;
+ToggleButtonStroke.Parent = ToggleButton;
+
+local ToggleButtonGradient = Instance.new('UIGradient');
+ToggleButtonGradient.Color = ColorSequence.new({
+    ColorSequenceKeypoint.new(0, Color3.new(1, 1, 1)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(212, 212, 212))
+});
+ToggleButtonGradient.Rotation = 90;
+ToggleButtonGradient.Parent = ToggleButton;
 
 -- Toggle function for the button
 local function ToggleUI()
