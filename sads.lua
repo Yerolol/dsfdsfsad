@@ -256,6 +256,24 @@ function Library:ApplyTextStroke(Inst)
 	});
 end;
 
+function Library:ConnectClick(GuiObject, Callback)
+	if not GuiObject or type(Callback) ~= 'function' then
+		return
+	end
+
+	GuiObject.InputBegan:Connect(function(Input)
+		if Input.UserInputType == Enum.UserInputType.MouseButton1 then
+			Callback(Input)
+		end
+	end)
+
+	if GuiObject.TouchTap then
+		GuiObject.TouchTap:Connect(function()
+			Callback({ UserInputType = Enum.UserInputType.Touch })
+		end)
+	end
+end;
+
 function Library:MakeDraggable(Instance, Cutoff)
     Instance.Active = true;
 
@@ -1312,27 +1330,26 @@ do
 			});
 
 			local Inner = Library:Create('Frame', {
-				BackgroundColor3 = Library.MainColor;
-				BorderColor3 = Library.OutlineColor;
-				BorderMode = Enum.BorderMode.Inset;
-				Size = UDim2.new(1, 0, 1, 0);
-				ZIndex = 6;
-				Parent = Outer;
-			});
+			BackgroundColor3 = Library.MainColor2;
+			BorderColor3 = Library.OutlineColor;
+			BorderMode = Enum.BorderMode.Inset;
+			Size = UDim2.new(1, 0, 1, 0);
+			ZIndex = 6;
+			Parent = Outer;
+		});
 
-			local Label = Library:CreateLabel({
-				Size = UDim2.new(1, 0, 1, 0);
-				TextSize = 14;
-				Text = Button.Text;
-				ZIndex = 6;
-				Parent = Inner;
-			});
+		local Label = Library:CreateLabel({
+			Size = UDim2.new(1, 0, 1, 0);
+			TextSize = 14;
+			Text = Button.Text;
+			ZIndex = 6;
+			Parent = Inner;
+		});
 
-			Library:Create('UIGradient', {
-				Color = ColorSequence.new({
-					ColorSequenceKeypoint.new(0, Color3.new(1, 1, 1)),
-					ColorSequenceKeypoint.new(1, Color3.fromRGB(212, 212, 212))
-				});
+		Library:Create('UIGradient', {
+			Color = ColorSequence.new({
+				ColorSequenceKeypoint.new(0, Color3.fromRGB(70, 70, 70)),
+				ColorSequenceKeypoint.new(1, Color3.fromRGB(18, 18, 18))
 				Rotation = 90;
 				Parent = Inner;
 			});
@@ -1383,7 +1400,7 @@ do
 				return true
 			end
 
-			Button.Outer.InputBegan:Connect(function(Input)
+			Library:ConnectClick(Button.Outer, function(Input)
 				if not ValidateClick(Input) then return end
 				if Button.Locked then return end
 
@@ -1713,8 +1730,7 @@ do
 		});
 
 		local ToggleInner = Library:Create('Frame', {
-			BackgroundColor3 = Library.MainColor;
-			BorderColor3 = Library.OutlineColor;
+		BackgroundColor3 = Library.MainColor2;
 			BorderMode = Enum.BorderMode.Inset;
 			Size = UDim2.new(1, 0, 1, 0);
 			ZIndex = 6;
@@ -1765,11 +1781,10 @@ do
 		end
 
 		function Toggle:Display()
-			ToggleInner.BackgroundColor3 = Toggle.Value and Library.AccentColor or Library.MainColor;
-			ToggleInner.BorderColor3 = Toggle.Value and Library.AccentColorDark or Library.OutlineColor;
+		ToggleInner.BackgroundColor3 = Toggle.Value and Library.AccentColor or Library.MainColor2;
+		ToggleInner.BorderColor3 = Toggle.Value and Library.AccentColorDark or Library.OutlineColor;
 
-			Library.RegistryMap[ToggleInner].Properties.BackgroundColor3 = Toggle.Value and 'AccentColor' or 'MainColor';
-			Library.RegistryMap[ToggleInner].Properties.BorderColor3 = Toggle.Value and 'AccentColorDark' or 'OutlineColor';
+		Library.RegistryMap[ToggleInner].Properties.BackgroundColor3 = Toggle.Value and 'AccentColor' or 'MainColor2';
 		end;
 
 		function Toggle:OnChanged(Func)
@@ -1796,14 +1811,15 @@ do
 			Library:UpdateDependencyBoxes();
 		end;
 
-		ToggleRegion.InputBegan:Connect(function(Input)
-			if Input.UserInputType == Enum.UserInputType.MouseButton1 and not Library:MouseIsOverOpenedFrame() or Input.UserInputType == Enum.UserInputType.Touch and not Library:MouseIsOverOpenedFrame() then
-				Toggle:SetValue(not Toggle.Value)
-				Library:AttemptSave();
-			end;
-		end);
+	Library:ConnectClick(ToggleRegion, function(Input)
+		if (Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch)
+			and not Library:MouseIsOverOpenedFrame() then
+			Toggle:SetValue(not Toggle.Value)
+			Library:AttemptSave();
+		end;
+	end);
 
-		if Toggle.Risky then
+	if Toggle.Risky then
 			Library:RemoveFromRegistry(ToggleLabel)
 			ToggleLabel.TextColor3 = Library.RiskColor
 			Library:AddToRegistry(ToggleLabel, { TextColor3 = 'RiskColor' })
@@ -2076,10 +2092,8 @@ do
 
 		Library:Create('UIGradient', {
 			Color = ColorSequence.new({
-				ColorSequenceKeypoint.new(0, Color3.new(1, 1, 1)),
-				ColorSequenceKeypoint.new(1, Color3.fromRGB(212, 212, 212))
-			});
-			Rotation = 90;
+			ColorSequenceKeypoint.new(0, Color3.fromRGB(70, 70, 70)),
+			ColorSequenceKeypoint.new(1, Color3.fromRGB(18, 18, 18))
 			Parent = DropdownInner;
 		});
 
@@ -2228,8 +2242,7 @@ do
 				Count = Count + 1;
 
 				local Button = Library:Create('Frame', {
-					BackgroundColor3 = Library.MainColor;
-					BorderColor3 = Library.OutlineColor;
+				BackgroundColor3 = Library.MainColor2;
 					BorderMode = Enum.BorderMode.Middle;
 					Size = UDim2.new(1, -1, 0, 20);
 					ZIndex = 23;
@@ -2238,8 +2251,7 @@ do
 				});
 
 				Library:AddToRegistry(Button, {
-					BackgroundColor3 = 'MainColor';
-					BorderColor3 = 'OutlineColor';
+				BackgroundColor3 = 'MainColor2';
 				});
 
 				local ButtonLabel = Library:CreateLabel({
@@ -2277,7 +2289,7 @@ do
 					Library.RegistryMap[ButtonLabel].Properties.TextColor3 = Selected and 'AccentColor' or 'FontColor';
 				end;
 
-				ButtonLabel.InputBegan:Connect(function(Input)
+Library:ConnectClick(ButtonLabel, function(Input)
 					if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
 						local Try = not Selected;
 
@@ -2378,17 +2390,17 @@ do
 			Library:SafeCallback(Dropdown.Changed, Dropdown.Value);
 		end;
 
-		DropdownOuter.InputBegan:Connect(function(Input)
-			if Input.UserInputType == Enum.UserInputType.MouseButton1 and not Library:MouseIsOverOpenedFrame() or Input.UserInputType == Enum.UserInputType.Touch then
-				if ListOuter.Visible then
-					Dropdown:CloseDropdown();
-				else
-					Dropdown:OpenDropdown();
-				end;
+	Library:ConnectClick(DropdownOuter, function(Input)
+		if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
+			if ListOuter.Visible then
+				Dropdown:CloseDropdown();
+			else
+				Dropdown:OpenDropdown();
 			end;
-		end);
+		end;
+	end);
 
-		InputService.InputBegan:Connect(function(Input)
+	InputService.InputBegan:Connect(function(Input)
 			if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
 				local AbsPos, AbsSize = ListOuter.AbsolutePosition, ListOuter.AbsoluteSize;
 
