@@ -257,19 +257,15 @@ function Library:ApplyTextStroke(Inst)
 end;
 
 function Library:ConnectClick(GuiObject, Callback)
-	if not GuiObject or type(Callback) ~= 'function' then
+	if not GuiObject or typeof(GuiObject) ~= 'Instance' or type(Callback) ~= 'function' then
 		return
 	end
 
-	GuiObject.InputBegan:Connect(function(Input)
-		if Input.UserInputType == Enum.UserInputType.MouseButton1 then
-			Callback(Input)
-		end
-	end)
-
-	if GuiObject.TouchTap then
-		GuiObject.TouchTap:Connect(function()
-			Callback({ UserInputType = Enum.UserInputType.Touch })
+	if GuiObject.InputBegan then
+		GuiObject.InputBegan:Connect(function(Input)
+			if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
+				Callback(Input)
+			end
 		end)
 	end
 end;
@@ -1785,11 +1781,7 @@ do
 		ToggleInner.BorderColor3 = Toggle.Value and Library.AccentColorDark or Library.OutlineColor;
 
 		Library.RegistryMap[ToggleInner].Properties.BackgroundColor3 = Toggle.Value and 'AccentColor' or 'MainColor2';
-		end;
-
-		function Toggle:OnChanged(Func)
-			Toggle.Changed = Func;
-			pcall(Func, Toggle.Value);
+	Library.RegistryMap[ToggleInner].Properties.BorderColor3 = Toggle.Value and 'AccentColorDark' or 'OutlineColor';
 		end;
 
 		function Toggle:SetValue(Bool)
