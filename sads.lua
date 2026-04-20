@@ -1370,15 +1370,21 @@ do
 		local function InitEvents(Button)
 			local function WaitForEvent(event, timeout, validator)
 				local bindable = Instance.new('BindableEvent')
-				local connection = event:Once(function(...)
+				local connection
+				connection = event:Connect(function(...)
 					if type(validator) == 'function' and validator(...) then
 						bindable:Fire(true)
 					else
 						bindable:Fire(false)
 					end
+					if connection then
+						connection:Disconnect()
+					end
 				end)
 				task.delay(timeout, function()
-					connection:disconnect()
+					if connection then
+						connection:Disconnect()
+					end
 					bindable:Fire(false)
 				end)
 				return bindable.Event:Wait()
