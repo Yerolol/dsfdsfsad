@@ -1,30 +1,57 @@
-local InputService = game:GetService('UserInputService');
-local TextService = game:GetService('TextService');
-local CoreGui = game:GetService('CoreGui');
-local Teams = game:GetService('Teams');
-local Players = game:GetService('Players');
-local RunService = game:GetService('RunService')
-local TweenService = game:GetService('TweenService');
-local RenderStepped = RunService.RenderStepped;
-local LocalPlayer = Players.LocalPlayer;
-local Mouse = LocalPlayer:GetMouse();
+local function SafeGetService(Name)
+    if typeof(game) ~= 'Instance' or not game then
+        return nil
+    end
 
-local ProtectGui = protectgui or (syn and syn.protect_gui) or (function() end);
+    local ok, result = pcall(function()
+        return game:GetService(Name)
+    end)
 
-InputService.TouchStarted:Connect(function()
-    isTouching = true
-end)
+    if ok and result then
+        return result
+    end
 
-InputService.TouchEnded:Connect(function()
-    isTouching = false
-end)
+    if game:FindFirstChild(Name) then
+        return game:FindFirstChild(Name)
+    end
+
+    return nil
+end
+
+local InputService = SafeGetService('UserInputService')
+local TextService = SafeGetService('TextService')
+local CoreGui = SafeGetService('CoreGui')
+local Teams = SafeGetService('Teams')
+local Players = SafeGetService('Players')
+local RunService = SafeGetService('RunService')
+local TweenService = SafeGetService('TweenService')
+local RenderStepped = RunService and RunService.RenderStepped
+local LocalPlayer = Players and Players.LocalPlayer
+if Players and not LocalPlayer and Players.PlayerAdded then
+    LocalPlayer = Players.PlayerAdded:Wait()
+end
+local Mouse = (LocalPlayer and LocalPlayer.GetMouse) and LocalPlayer:GetMouse()
+
+local ProtectGui = (type(protectgui) == 'function' and protectgui)
+    or (syn and type(syn.protect_gui) == 'function' and syn.protect_gui)
+    or function() end;
+
+if InputService then
+    InputService.TouchStarted:Connect(function()
+        isTouching = true
+    end)
+
+    InputService.TouchEnded:Connect(function()
+        isTouching = false
+    end)
+end
 
 -- Device detection and auto-sizing
 local function GetDeviceType()
     local screenSize = workspace.CurrentCamera and workspace.CurrentCamera.ViewportSize or Vector2.new(1920, 1080)
     local aspectRatio = screenSize.X / screenSize.Y
     
-    if InputService.TouchEnabled and not InputService.MouseEnabled then
+    if InputService and InputService.TouchEnabled and not InputService.MouseEnabled then
         if screenSize.X < 768 then
             return "phone"
         else
