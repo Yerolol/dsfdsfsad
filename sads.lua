@@ -1,7 +1,9 @@
 local startupArgs = ({...})[1] or {}
 
 if getgenv().library ~= nil then
-    getgenv().library:Unload();
+    pcall(function()
+        getgenv().library:Unload();
+    end)
 end
 
 if not game:IsLoaded() then
@@ -571,11 +573,11 @@ do
                     drawing[i] = v
                 end
 
-                if table.find({'Size','Position','Position','Visible','Parent'},i) then
+                if table.find({'Size','Position','Visible','Parent'},i) then
                     drawing:Update()
                 end
                 if table.find({'ThemeColor','OutlineThemeColor','ThemeColorOffset','OutlineThemeColorOffset'},i) and lastval ~= v then
-                    library.UpdateThemeColors()
+                    pcall(function() library.UpdateThemeColors() end)
                 end
 
             end
