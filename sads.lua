@@ -27,6 +27,13 @@ local executor = (
     'unknown'
 )
 
+-- // Mobile Detection
+local screenSize = workspace.CurrentCamera.ViewportSize
+local isMobile = screenSize.X < 800
+local isTablet = screenSize.X >= 800 and screenSize.X < 1366
+local isPC = screenSize.X >= 1366
+local deviceType = isMobile and 'mobile' or (isTablet and 'tablet' or 'pc')
+
 local library = {
     windows = {};
     indicators = {};
@@ -93,6 +100,10 @@ local library = {
     cheatname = startupArgs.cheatname or 'Clanware';
     gamename = startupArgs.gamename or 'Universal';
     fileext = startupArgs.fileext or '.txt';
+    deviceType = deviceType;
+    isMobile = isMobile;
+    isTablet = isTablet;
+    isPC = isPC;
 }
 
 library.themes = {
@@ -726,19 +737,51 @@ function library:init()
         self.images[i] = readfile(self.cheatname..'/assets/'..i..'.oh');
     end
 
+    -- Create toggle button outside UI (top right corner)
+    local toggleButtonObj = utility:Draw('Square', {
+        Size = isMobile and newUDim2(0, 50, 0, 50) or newUDim2(0, 60, 0, 60);
+        Position = newUDim2(1, isMobile and -60 or -80, 0, 10);
+        ThemeColor = 'Accent';
+        ZIndex = 2000;
+        Visible = true;
+    })
+    
+    local toggleButtonText = utility:Draw('Text', {
+        Size = isMobile and 12 or 14;
+        Text = '✓';
+        ThemeColor = 'Primary Text';
+        Font = 2;
+        Center = true;
+        ZIndex = 2001;
+        Parent = toggleButtonObj;
+    })
+    
+    utility:Connection(toggleButtonObj.MouseButton1Down, function()
+        if not library.opening then
+            self:SetOpen(not self.open)
+            task.spawn(function()
+                library.opening = true;
+                task.wait(.15);
+                library.opening = false;
+            end)
+        end
+    end)
+    
     self.cursor1 = utility:Draw('Triangle', {Filled = true, Color = fromrgb(255,255,255), ZIndex = self.zindexOrder.cursor});
     self.cursor2 = utility:Draw('Triangle', {Filled = true, Color = fromrgb(85,85,85), self.zindexOrder.cursor-1});
     local function updateCursor()
-        self.cursor1.Visible = self.open
-        self.cursor2.Visible = self.open
-        if self.cursor1.Visible then
-            local pos = inputservice:GetMouseLocation();
-            self.cursor1.PointA = pos;
-            self.cursor1.PointB = pos + newVector2(16,5);
-            self.cursor1.PointC = pos + newVector2(5,16);
-            self.cursor2.PointA = self.cursor1.PointA + newVector2(0, 0)
-            self.cursor2.PointB = self.cursor1.PointB + newVector2(1, 1)
-            self.cursor2.PointC = self.cursor1.PointC + newVector2(1, 1)
+        if not isMobile then
+            self.cursor1.Visible = self.open
+            self.cursor2.Visible = self.open
+            if self.cursor1.Visible then
+                local pos = inputservice:GetMouseLocation();
+                self.cursor1.PointA = pos;
+                self.cursor1.PointB = pos + newVector2(16,5);
+                self.cursor1.PointC = pos + newVector2(5,16);
+                self.cursor2.PointA = self.cursor1.PointA + newVector2(0, 0)
+                self.cursor2.PointB = self.cursor1.PointB + newVector2(1, 1)
+                self.cursor2.PointC = self.cursor1.PointC + newVector2(1, 1)
+            end
         end
     end
 
@@ -761,7 +804,7 @@ function library:init()
 
     utility:Connection(inputservice.InputBegan, function(input, gpe)
         if self.hasInit then
-            if input.KeyCode == self.toggleKey and not library.opening and not gpe then
+            if not isMobile and input.KeyCode == self.toggleKey and not library.opening and not gpe then
                 self:SetOpen(not self.open)
                 task.spawn(function()
                     library.opening = true;
@@ -772,16 +815,18 @@ function library:init()
             if library.open then
                 local hoverObj = utility:GetHoverObject();
                 local hoverObjData = library.drawings[hoverObj];
-                if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
                     mb1down = true;
                     button1down:Fire()
                     if hoverObj and hoverObjData then
-                        hoverObjData.MouseButton1Down:Fire(inputservice:GetMouseLocation())
+                        local pos = input.UserInputType == Enum.UserInputType.Touch and input.Position or inputservice:GetMouseLocation()
+                        hoverObjData.MouseButton1Down:Fire(pos)
                     end
 
                     -- // Update Sliders Click
                     if library.draggingSlider ~= nil then
-                        local rel = inputservice:GetMouseLocation() - library.draggingSlider.objects.background.Object.Position;
+                        local pos = input.UserInputType == Enum.UserInputType.Touch and input.Position or inputservice:GetMouseLocation()
+                        local rel = pos - library.draggingSlider.objects.background.Object.Position;
                         local val = utility:ConvertNumberRange(rel.X, 0 , library.draggingSlider.objects.background.Object.Size.X, library.draggingSlider.min, library.draggingSlider.max);
                         library.draggingSlider:SetValue(val)
                     end
@@ -800,11 +845,12 @@ function library:init()
             local hoverObj = utility:GetHoverObject();
             local hoverObjData = library.drawings[hoverObj];
 
-            if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
                 mb1down = false;
                 button1up:Fire();
                 if hoverObj and hoverObjData then
-                    hoverObjData.MouseButton1Up:Fire(inputservice:GetMouseLocation())
+                    local pos = input.UserInputType == Enum.UserInputType.Touch and input.Position or inputservice:GetMouseLocation()
+                    hoverObjData.MouseButton1Up:Fire(pos)
                 end
             elseif input.UserInputType == Enum.UserInputType.MouseButton2 then
                 if hoverObj and hoverObjData then
@@ -815,12 +861,13 @@ function library:init()
     end)
 
     utility:Connection(inputservice.InputChanged, function(input, gpe)
-        if input.UserInputType == Enum.UserInputType.MouseMovement then
+        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
             if library.open then
-                mousemove:Fire(inputservice:GetMouseLocation());
+                local pos = input.UserInputType == Enum.UserInputType.Touch and input.Position or inputservice:GetMouseLocation()
+                mousemove:Fire(pos);
                 updateCursor();
 
-                if library.CurrentTooltip ~= nil then
+                if not isMobile and library.CurrentTooltip ~= nil then
                     local mousePos = inputservice:GetMouseLocation()
                     tooltipObjects.background.Position = UDim2.new(0,mousePos.X + 15,0,mousePos.Y + 15)
                     tooltipObjects.background.Size = UDim2.new(0,tooltipObjects.text.TextBounds.X + 6 + (library.CurrentTooltip.risky and 60 or 0),0,tooltipObjects.text.TextBounds.Y + 2)
@@ -831,10 +878,10 @@ function library:init()
                     local hover = hoverObj == v.Object;
                     if hover and not v.Hover then
                         v.Hover = true;
-                        v.MouseEnter:Fire(inputservice:GetMouseLocation());
+                        v.MouseEnter:Fire(pos);
                     elseif not hover and v.Hover then
                         v.Hover = false;
-                        v.MouseLeave:Fire(inputservice:GetMouseLocation());
+                        v.MouseLeave:Fire(pos);
                     end
                 end
 
@@ -842,7 +889,7 @@ function library:init()
 
                     -- // Update Sliders Drag
                     if library.draggingSlider ~= nil then
-                        local rel = inputservice:GetMouseLocation() - library.draggingSlider.objects.background.Object.Position;
+                        local rel = pos - library.draggingSlider.objects.background.Object.Position;
                         local val = utility:ConvertNumberRange(rel.X, 0 , library.draggingSlider.objects.background.Object.Size.X, library.draggingSlider.min, library.draggingSlider.max);
                         library.draggingSlider:SetValue(val)
                     end
@@ -1226,6 +1273,7 @@ function library:init()
             selectedTab = nil;
             tabs = {},
             objects = {},
+            scrollOffset = 0;
             colorpicker = {
                 objects = {};
                 color = c3new(1,0,0);
@@ -1243,8 +1291,18 @@ function library:init()
 
         ----- Create Objects ----
         do
-            local size = data.size or newUDim2(0, 525, 0, 650);
-            local position = data.position or newUDim2(0, 250, 0, 150);
+            -- Auto-size based on device type
+            local size, position
+            if library.isMobile then
+                size = data.size or newUDim2(0.95, 0, 0.85, 0);
+                position = data.position or newUDim2(0.025, 0, 0.075, 0);
+            elseif library.isTablet then
+                size = data.size or newUDim2(0, 600, 0, 700);
+                position = data.position or newUDim2(0.5, -300, 0.5, -350);
+            else
+                size = data.size or newUDim2(0, 525, 0, 650);
+                position = data.position or newUDim2(0, 250, 0, 150);
+            end
             local objs = window.objects;
             local z = library.zindexOrder.window;
 
@@ -1390,6 +1448,28 @@ function library:init()
                     end
                 end
             end)
+            
+            -- Mobile touch dragging support
+            if library.isMobile then
+                utility:Connection(inputservice.InputBegan, function(input, gpe)
+                    if input.UserInputType == Enum.UserInputType.Touch and library.open then
+                        local touchPos = input.Position
+                        if utility:MouseOver(objs.dragdetector) then
+                            dragging = true;
+                            mouseStart = newUDim2(0, touchPos.X, 0, touchPos.Y);
+                            objStart = objs.background.Position;
+                        end
+                    end
+                end)
+                
+                utility:Connection(inputservice.InputChanged, function(input, gpe)
+                    if dragging and input.UserInputType == Enum.UserInputType.Touch then
+                        if window.open then
+                            objs.background.Position = objStart + newUDim2(0, input.Position.X, 0, input.Position.Y) - mouseStart;
+                        end
+                    end
+                end)
+            end
 
         end
         -------------------------
