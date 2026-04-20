@@ -21,7 +21,7 @@ end)
 
 -- Device detection and auto-sizing
 local function GetDeviceType()
-    local screenSize = workspace.CurrentCamera.ViewportSize
+    local screenSize = workspace.CurrentCamera and workspace.CurrentCamera.ViewportSize or Vector2.new(1920, 1080)
     local aspectRatio = screenSize.X / screenSize.Y
     
     if InputService.TouchEnabled and not InputService.MouseEnabled then
@@ -534,7 +534,8 @@ local BaseAddons = {};
 do
     local Funcs = {};
 
-    function Funcs:AddColorPicker(Idx, Info)
+    function Funcs:AddColorPicker(Info)
+        local Idx = Info.Idx or tostring(#Options + 1)
         local ToggleLabel = self.TextLabel;
         local Container = self.Container;
 
@@ -872,12 +873,14 @@ do
         return self;
     end;
 
-	function Funcs:AddKeyPicker(Idx, Info)
+	function Funcs:AddKeyPicker(Info)
 		local ParentObj = self;
 		local ToggleLabel = self.TextLabel;
 		local Container = self.Container;
 
 		assert(Info.Default, 'AddKeyPicker: Missing default value.');
+
+		local Idx = Info.Idx or tostring(#Options + 1)
 
 		local KeyPicker = {
 			Value = Info.Default;
@@ -1528,8 +1531,10 @@ do
 		Groupbox:Resize();
 	end
 
-	function Funcs:AddInput(Idx, Info)
+	function Funcs:AddInput(Info)
 		assert(Info.Text, 'AddInput: Missing `Text` string.')
+
+		local Idx = Info.Idx or tostring(#Options + 1)
 
 		local Textbox = {
 			Value = Info.Default or '';
@@ -1713,8 +1718,10 @@ do
 		return Textbox;
 	end;
 
-	function Funcs:AddToggle(Idx, Info)
-		assert(Info.Text, 'AddInput: Missing `Text` string.')
+	function Funcs:AddToggle(Info)
+		assert(Info and Info.Text, 'AddToggle: Missing `Text` string.')
+
+		local Idx = Info.Idx or tostring(#Toggles + 1)
 
 		local Toggle = {
 			Value = Info.Default or false;
@@ -1852,12 +1859,14 @@ do
 		return Toggle;
 	end;
 
-function Funcs:AddSlider(Idx, Info)
+function Funcs:AddSlider(Info)
     assert(Info.Default, 'AddSlider: Missing default value.')
     assert(Info.Text, 'AddSlider: Missing slider text.')
     assert(Info.Min, 'AddSlider: Missing minimum value.')
     assert(Info.Max, 'AddSlider: Missing maximum value.')
     assert(Info.Rounding, 'AddSlider: Missing rounding value.')
+
+    local Idx = Info.Idx or tostring(#Options + 1)
 
     local Slider = {
         Value = Info.Default,
@@ -2022,7 +2031,7 @@ function Funcs:AddSlider(Idx, Info)
     return Slider
 end
 
-	function Funcs:AddDropdown(Idx, Info)
+	function Funcs:AddDropdown(Info)
 		if Info.SpecialType == 'Player' then
 			Info.Values = GetPlayersString();
 			Info.AllowNull = true;
@@ -2037,6 +2046,8 @@ end
 		if (not Info.Text) then
 			Info.Compact = true;
 		end;
+
+		local Idx = Info.Idx or tostring(#Options + 1)
 
 		local Dropdown = {
 			Values = Info.Values;
