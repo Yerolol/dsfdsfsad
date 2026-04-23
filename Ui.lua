@@ -5866,22 +5866,22 @@ local Library do
                         ResetOnSpawn = false
                     })
 
-                    local MobileButton = Instances:Create("ImageButton", {
+                    Items["MobileButton"] = Instances:Create("ImageButton", {
                         Parent = Items["MobileToggle"].Instance,
                         Name = "Toggle",
                         Size = UDim2New(0, 50, 0, 50),
                         Position = UDim2New(0, 5, 0.5, -25),
                         BackgroundColor3 = FromRGB(16, 18, 21),
-                        Image = "rbxassetid://104788723686892",
+                        Image = "rbxassetid://86658474847671",
                         BorderSizePixel = 0,
                     })
 
                     Instances:Create("UICorner", {
-                        Parent = MobileButton.Instance,
+                        Parent = Items["MobileButton"].Instance,
                         CornerRadius = UDimNew(0, 8)
                     })
 
-                    MobileButton:Connect("MouseButton1Down", function()
+                    Items["MobileButton"]:Connect("MouseButton1Down", function()
                         Window:SetOpen(not Window.IsOpen)
                     end)
                 end
@@ -6318,6 +6318,25 @@ local Library do
                 task.wait(0.1)
                 Library:Unload()
             end)
+
+            -- Mobile toggle button functionality
+            if IsMobile and Items["MobileButton"] then
+                Items["MobileButton"]:Connect("MouseButton1Down", function()
+                    if Window.IsOpen then
+                        if IsMinimized then
+                            -- If minimized, first restore then close
+                            IsMinimized = false
+                            Items["MainFrame"]:Tween(nil, {Size = UDim2New(0, Items["MainFrame"].Instance.Size.X.Offset, 0, OldSize.Y)})
+                            Items["MinimizeButton"]:Tween(nil, {ImageTransparency = 0})
+                            Items["UnMinimizeButton"]:Tween(nil, {ImageTransparency = 1})
+                            task.wait(0.1)
+                        end
+                        Window:SetOpen(false)
+                    else
+                        Window:SetOpen(true)
+                    end
+                end)
+            end
 
             Window.Items = Items
 
