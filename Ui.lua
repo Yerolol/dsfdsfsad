@@ -4146,22 +4146,6 @@ local Library do
                     BackgroundColor3 = FromRGB(255, 255, 255)
                 })  Items["Title"]:AddToTheme({TextColor3 = "Text"})
 
-                Items["CloseButton"] = Instances:Create("ImageButton", {
-                    Parent = Items["Topbar"].Instance,
-                    Name = "\0",
-                    ScaleType = Enum.ScaleType.Fit,
-                    BorderColor3 = FromRGB(0, 0, 0),
-                    Size = UDim2New(0, 17, 0, 17),
-                    AutoButtonColor = false,
-                    AnchorPoint = Vector2New(1, 0.5),
-                    Image = "rbxassetid://76001605964586",
-                    BackgroundTransparency = 1,
-                    Position = UDim2New(1, -7, 0.5, 0),
-                    ZIndex = 2,
-                    BorderSizePixel = 0,
-                    BackgroundColor3 = FromRGB(255, 255, 255)
-                })  Items["CloseButton"]:AddToTheme({ImageColor3 = "Image"})
-
                 Instances:Create("UICorner", {
                     Parent = Items["EspPreview"].Instance,
                     Name = "\0",
@@ -4758,10 +4742,6 @@ local Library do
             function ESPPreview:SetVisibility(Bool)
                 Items["EspPreview"].Instance.Visible = Bool
             end
-            
-            Items["CloseButton"]:Connect("MouseButton1Down", function()
-                ESPPreview:SetVisibility(false)
-            end)
 
             local LocalCharacter = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
 
@@ -4969,22 +4949,6 @@ local Library do
                     AutomaticSize = Enum.AutomaticSize.X,
                     BackgroundColor3 = FromRGB(255, 255, 255)
                 })  Items["Title"]:AddToTheme({TextColor3 = "Text"})
-
-                Items["CloseButton"] = Instances:Create("ImageButton", {
-                    Parent = Items["Topbar"].Instance,
-                    Name = "\0",
-                    ScaleType = Enum.ScaleType.Fit,
-                    BorderColor3 = FromRGB(0, 0, 0),
-                    Size = UDim2New(0, 17, 0, 17),
-                    AutoButtonColor = false,
-                    AnchorPoint = Vector2New(1, 0.5),
-                    Image = "rbxassetid://76001605964586",
-                    BackgroundTransparency = 1,
-                    Position = UDim2New(1, -7, 0.5, 0),
-                    ZIndex = 2,
-                    BorderSizePixel = 0,
-                    BackgroundColor3 = FromRGB(255, 255, 255)
-                })  Items["CloseButton"]:AddToTheme({ImageColor3 = "Image"})
 
                 Items["StatusCircle"] = Instances:Create("Frame", {
                     Parent = Items["Topbar"].Instance,
@@ -5880,10 +5844,6 @@ local Library do
                         Parent = Items["MobileButton"].Instance,
                         CornerRadius = UDimNew(0, 8)
                     })
-
-                    Items["MobileButton"]:Connect("MouseButton1Down", function()
-                        Window:SetOpen(not Window.IsOpen)
-                    end)
                 end
 
                 Items["Pages"] = Instances:Create("Frame", {
@@ -6082,53 +6042,6 @@ local Library do
                     PaddingRight = UDimNew(0, 0)
                 })
 
-                Items["CloseButton"] = Instances:Create("ImageButton", {
-                    Parent = Items["Topbar"].Instance,
-                    Name = "\0",
-                    ScaleType = Enum.ScaleType.Fit,
-                    BorderColor3 = FromRGB(0, 0, 0),
-                    Size = UDim2New(0, 20, 0, 20),
-                    AutoButtonColor = false,
-                    AnchorPoint = Vector2New(1, 0.5),
-                    Image = "rbxassetid://86658474847671",
-                    BackgroundTransparency = 1,
-                    Position = UDim2New(1, -7, 0.5, 0),
-                    ZIndex = 2,
-                    BorderSizePixel = 0,
-                    BackgroundColor3 = FromRGB(255, 255, 255)
-                })  Items["CloseButton"]:AddToTheme({ImageColor3 = "Image"})
-
-                Items["MinimizeButton"] = Instances:Create("ImageButton", {
-                    Parent = Items["Topbar"].Instance,
-                    Name = "\0",
-                    BorderColor3 = FromRGB(0, 0, 0),
-                    Size = UDim2New(0, 17, 0, 17),
-                    AutoButtonColor = false,
-                    AnchorPoint = Vector2New(1, 0.5),
-                    Image = "rbxassetid://94817928404736",
-                    BackgroundTransparency = 1,
-                    Position = UDim2New(1, -27, 0.5, -5),
-                    ZIndex = 2,
-                    BorderSizePixel = 0,
-                    BackgroundColor3 = FromRGB(255, 255, 255)
-                })  Items["MinimizeButton"]:AddToTheme({ImageColor3 = "Image"})
-
-                Items["UnMinimizeButton"] = Instances:Create("ImageButton", {
-                    Parent = Items["Topbar"].Instance,
-                    Name = "\0",
-                    BorderColor3 = FromRGB(0, 0, 0),
-                    Size = UDim2New(0, 17, 0, 17),
-                    ImageTransparency = 1,
-                    AutoButtonColor = false,
-                    AnchorPoint = Vector2New(1, 0.5),
-                    Image = "rbxassetid://77419631183448",
-                    BackgroundTransparency = 1,
-                    Position = UDim2New(1, -27, 0.5, 0),
-                    ZIndex = 2,
-                    BorderSizePixel = 0,
-                    BackgroundColor3 = FromRGB(255, 255, 255)
-                })  Items["UnMinimizeButton"]:AddToTheme({ImageColor3 = "Image"})
-
                 Instances:Create("UIStroke", {
                     Parent = Items["MainFrame"].Instance,
                     Name = "\0",
@@ -6298,27 +6211,6 @@ local Library do
             local IsMinimized = false
             local OldSize = Items["MainFrame"].Instance.AbsoluteSize
 
-            Items["MinimizeButton"]:Connect("MouseButton1Down", function()
-                IsMinimized = not IsMinimized
-
-                if IsMinimized then
-                    OldSize = Items["MainFrame"].Instance.AbsoluteSize
-                    Items["MainFrame"]:Tween(nil, {Size = UDim2New(0, Items["MainFrame"].Instance.Size.X.Offset, 0, 35)})
-                    Items["MinimizeButton"]:Tween(nil, {ImageTransparency = 1})
-                    Items["UnMinimizeButton"]:Tween(nil, {ImageTransparency = 0})
-                else
-                    Items["MainFrame"]:Tween(nil, {Size = UDim2New(0, Items["MainFrame"].Instance.Size.X.Offset, 0, OldSize.Y)})
-                    Items["MinimizeButton"]:Tween(nil, {ImageTransparency = 0})
-                    Items["UnMinimizeButton"]:Tween(nil, {ImageTransparency = 1})
-                end
-            end)
-
-            Items["CloseButton"]:Connect("MouseButton1Down", function()
-                Window:SetOpen(false)
-                task.wait(0.1)
-                Library:Unload()
-            end)
-
             -- Mobile toggle button functionality
             if IsMobile and Items["MobileButton"] then
                 Items["MobileButton"]:Connect("MouseButton1Down", function()
@@ -6327,8 +6219,6 @@ local Library do
                             -- If minimized, first restore then close
                             IsMinimized = false
                             Items["MainFrame"]:Tween(nil, {Size = UDim2New(0, Items["MainFrame"].Instance.Size.X.Offset, 0, OldSize.Y)})
-                            Items["MinimizeButton"]:Tween(nil, {ImageTransparency = 0})
-                            Items["UnMinimizeButton"]:Tween(nil, {ImageTransparency = 1})
                             task.wait(0.1)
                         end
                         Window:SetOpen(false)
